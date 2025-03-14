@@ -1,6 +1,5 @@
 import streamlit as st
 import json
-import pymongo
 
 # Add custom CSS and animation
 st.markdown("""
@@ -113,8 +112,7 @@ menu_option = st.sidebar.selectbox('Menu', [
     'Search Book 🔍',
     'List All Books 📚',
     "Statistics 📊",
-    "Save Library 💾",
-    "Save to MongoDB 🗄️"
+    "Save Library 💾"
 ])
 
 # Main Page Header with emoji
@@ -232,29 +230,3 @@ elif menu_option.startswith("Save Library"):
         json.dump(st.session_state.library, f)
     st.success('Library saved successfully! 🎉')
 
-elif menu_option.startswith("Save to MongoDB"):
-    st.header('Save to MongoDB 🗄️')
-    try:
-        # Connect to MongoDB (adjust connection string as needed)
-        client = pymongo.MongoClient("mongodb://localhost:27017/")
-        db = client['library_db']
-        collection = db['books']
-
-        if st.button("Save to MongoDB"):
-            if st.session_state.library:
-                result = collection.insert_many(st.session_state.library)
-                st.success(f"{len(result.inserted_ids)} books saved to MongoDB successfully! 🎉")
-            else:
-                st.warning("No books in library to save! ⚠️")
-                
-        # Button to view current records in the database
-        if st.button("View MongoDB Records"):
-            records = list(collection.find({}, {'_id': 0}))  # Exclude the MongoDB _id for clarity
-            if records:
-                st.write("Books in MongoDB:")
-                for rec in records:
-                    st.write(rec)
-            else:
-                st.info("No records found in MongoDB. 😞")
-    except Exception as e:
-        st.error(f"Error connecting to MongoDB: {e} ❌")
